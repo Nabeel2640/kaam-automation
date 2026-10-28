@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --kaam-primary: #0f172a;
+  --kaam-accent: #14b8a6;
+  --kaam-accent-hover: #0f766e;
+  --kaam-background: #f8fafc;
+  --kaam-surface: #ffffff;
+  --kaam-foreground: #1e293b;
+  --kaam-muted: #64748b;
+  --kaam-border: #e2e8f0;
+  --kaam-focus: #0f766e;
+}
+
+@theme inline {
+  --color-primary: var(--kaam-primary);
+  --color-accent: var(--kaam-accent);
+  --color-accent-hover: var(--kaam-accent-hover);
+  --color-background: var(--kaam-background);
+  --color-surface: var(--kaam-surface);
+  --color-foreground: var(--kaam-foreground);
+  --color-muted: var(--kaam-muted);
+  --color-border: var(--kaam-border);
+  --color-focus: var(--kaam-focus);
+  --font-sans: var(--font-inter);
+  --font-urdu: var(--font-noto-naskh);
+}
+
+html {
+  background: var(--kaam-background);
+  color: var(--kaam-foreground);
+}
+
+html[dir="ltr"] {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+html[dir="rtl"] {
+  font-family: var(--font-noto-naskh), "Noto Naskh Arabic", serif;
+  font-size: 1.0625rem;
+  line-height: 1.9;
+}
+
+body {
+  background: var(--kaam-background);
+  color: var(--kaam-foreground);
+  min-height: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--kaam-focus);
+  outline-offset: 3px;
+}

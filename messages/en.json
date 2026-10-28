@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "siteTitle": "Kaam Automation",
+    "siteDescription": "Business Automation & AI for Pakistan. Automate work, save time, stay in control."
+  },
+  "brand": {
+    "name": "Kaam Automation",
+    "tagline": "Automate Work. Save Time. Stay in Control.",
+    "shortDescription": "Kaam Automation helps Pakistani businesses reduce repetitive manual work using software, workflow automation, dashboards and AI."
+  },
+  "nav": {
+    "home": "Home",
+    "whatWeAutomate": "What We Automate",
+    "industries": "Industries",
+    "howItWorks": "How It Works",
+    "solutions": "Solutions",
+    "resources": "Resources",
+    "about": "About",
+    "contact": "Contact",
+    "audit": "Free Automation Audit",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "skipToContent": "Skip to content",
+    "mainNavigation": "Main navigation"
+  },
+  "footer": {
+    "navigation": "Navigation",
+    "solutions": "Solutions",
+    "industries": "Industries",
+    "resources": "Resources",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use",
+    "copyright": "Kaam Automation"
+  },
+  "language": {
+    "label": "Language",
+    "en": "EN",
+    "ur": "اردو"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page is not available.",
+    "home": "Return Home"
+  },
+  "home": {
+    "headline": "Automate Your Business. Save Time. Stay in Control.",
+    "supporting": "Kaam Automation helps Pakistani businesses reduce repetitive manual work, connect business operations and give owners better visibility using software and AI."
+  }
+}
