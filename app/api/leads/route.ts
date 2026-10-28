@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "Kaam Automation <onboarding@resend.dev>",
+      from: "Kaam Automation <notifications@kaamautomation.com>",
       to: [notificationEmail],
       subject: `New Automation Audit Request - ${escapeHtml(
         business_name
