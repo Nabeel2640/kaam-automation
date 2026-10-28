@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 
-import { supabase } from "@/lib/supabase/client";
 import type { Locale } from "@/lib/i18n/config";
 
 export function AuditForm({ locale }: { locale: Locale }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const content = {
     en: {
@@ -49,6 +49,7 @@ export function AuditForm({ locale }: { locale: Locale }) {
 
     setLoading(true);
     setMessage("");
+    setSuccess(false);
 
     const form = new FormData(formElement);
 
@@ -63,26 +64,8 @@ export function AuditForm({ locale }: { locale: Locale }) {
       biggest_problem: String(form.get("biggest_problem") || ""),
     };
 
-    const { error } = await supabase.from("leads").insert({
-      full_name: lead.full_name,
-      business_name: lead.business_name,
-      phone: lead.phone,
-      email: lead.email || null,
-      city: lead.city || null,
-      industry: lead.industry || null,
-      current_software: lead.current_software || null,
-      biggest_problem: lead.biggest_problem,
-    });
-
-    if (error) {
-      console.error("Supabase error:", error);
-      setMessage(content.error);
-      setLoading(false);
-      return;
-    }
-
     try {
-      const emailResponse = await fetch("/api/leads", {
+      const response = await fetch("/api/leads", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -90,16 +73,22 @@ export function AuditForm({ locale }: { locale: Locale }) {
         body: JSON.stringify(lead),
       });
 
-      if (!emailResponse.ok) {
-        console.error("Email notification could not be sent.");
+      if (!response.ok) {
+        console.error("Lead submission failed.");
+        setMessage(content.error);
+        setLoading(false);
+        return;
       }
-    } catch (emailError) {
-      console.error("Email notification error:", emailError);
-    }
 
-    formElement.reset();
-    setMessage(content.success);
-    setLoading(false);
+      formElement.reset();
+      setSuccess(true);
+      setMessage(content.success);
+      setLoading(false);
+    } catch (error) {
+      console.error("Lead submission error:", error);
+      setMessage(content.error);
+      setLoading(false);
+    }
   }
 
   return (
@@ -110,6 +99,8 @@ export function AuditForm({ locale }: { locale: Locale }) {
           name="full_name"
           type="text"
           required
+          minLength={2}
+          maxLength={100}
           className="rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-teal-500"
         />
       </label>
@@ -122,6 +113,8 @@ export function AuditForm({ locale }: { locale: Locale }) {
           name="business_name"
           type="text"
           required
+          minLength={2}
+          maxLength={150}
           className="rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-teal-500"
         />
       </label>
@@ -132,6 +125,8 @@ export function AuditForm({ locale }: { locale: Locale }) {
           name="phone"
           type="tel"
           required
+          minLength={7}
+          maxLength={30}
           className="rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-teal-500"
         />
       </label>
@@ -141,6 +136,7 @@ export function AuditForm({ locale }: { locale: Locale }) {
         <input
           name="email"
           type="email"
+          maxLength={150}
           className="rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-teal-500"
         />
       </label>
@@ -150,6 +146,7 @@ export function AuditForm({ locale }: { locale: Locale }) {
         <input
           name="city"
           type="text"
+          maxLength={100}
           className="rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-teal-500"
         />
       </label>
@@ -159,6 +156,7 @@ export function AuditForm({ locale }: { locale: Locale }) {
         <input
           name="industry"
           type="text"
+          maxLength={150}
           className="rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-teal-500"
         />
       </label>
@@ -188,6 +186,8 @@ export function AuditForm({ locale }: { locale: Locale }) {
           name="biggest_problem"
           rows={5}
           required
+          minLength={5}
+          maxLength={3000}
           className="rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-teal-500"
         />
       </label>
@@ -202,7 +202,11 @@ export function AuditForm({ locale }: { locale: Locale }) {
         </button>
 
         {message && (
-          <p className="mt-4 text-center font-medium text-slate-700">
+          <p
+            className={`mt-4 text-center font-medium ${
+              success ? "text-emerald-700" : "text-red-600"
+            }`}
+          >
             {message}
           </p>
         )}

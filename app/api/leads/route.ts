@@ -1,7 +1,32 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import { z } from "zod";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+);
+
+const leadSchema = z.object({
+  full_name: z.string().trim().min(2).max(100),
+  business_name: z.string().trim().min(2).max(150),
+  phone: z.string().trim().min(7).max(30),
+  email: z
+    .string()
+    .trim()
+    .max(150)
+    .refine(
+      (value) => value === "" || z.string().email().safeParse(value).success,
+      "Invalid email"
+    ),
+  city: z.string().trim().max(100),
+  industry: z.string().trim().max(150),
+  current_software: z.string().trim().max(50),
+  biggest_problem: z.string().trim().min(5).max(3000),
+});
 
 function escapeHtml(value: unknown) {
   return String(value ?? "")
@@ -16,6 +41,15 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
+    const parsed = leadSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid form data." },
+        { status: 400 }
+      );
+    }
+
     const {
       full_name,
       business_name,
@@ -25,12 +59,25 @@ export async function POST(request: Request) {
       industry,
       current_software,
       biggest_problem,
-    } = body;
+    } = parsed.data;
 
-    if (!full_name || !business_name || !phone || !biggest_problem) {
+    const { error: databaseError } = await supabase.from("leads").insert({
+      full_name,
+      business_name,
+      phone,
+      email: email || null,
+      city: city || null,
+      industry: industry || null,
+      current_software: current_software || null,
+      biggest_problem,
+    });
+
+    if (databaseError) {
+      console.error("Supabase error:", databaseError);
+
       return NextResponse.json(
-        { error: "Required fields are missing." },
-        { status: 400 }
+        { error: "Unable to save lead." },
+        { status: 500 }
       );
     }
 
@@ -40,7 +87,7 @@ export async function POST(request: Request) {
       console.error("LEAD_NOTIFICATION_EMAIL is missing.");
 
       return NextResponse.json(
-        { error: "Notification email is not configured." },
+        { error: "Lead saved, but notification email is not configured." },
         { status: 500 }
       );
     }
@@ -49,12 +96,12 @@ export async function POST(request: Request) {
       console.error("RESEND_API_KEY is missing.");
 
       return NextResponse.json(
-        { error: "Resend API key is not configured." },
+        { error: "Lead saved, but Resend is not configured." },
         { status: 500 }
       );
     }
 
-    const { data, error } = await resend.emails.send({
+    const { data, error: resendError } = await resend.emails.send({
       from: "Kaam Automation <notifications@kaamautomation.com>",
       to: [notificationEmail],
       subject: `New Automation Audit Request - ${escapeHtml(
@@ -86,29 +133,28 @@ export async function POST(request: Request) {
       `,
     });
 
-    if (error) {
-      console.error("Resend error:", error);
+    if (resendError) {
+      console.error("Resend error:", resendError);
 
       return NextResponse.json(
         {
-          error: "Resend could not send the email.",
-          details: error.message,
+          error: "Lead saved, but notification email could not be sent.",
         },
         { status: 500 }
       );
     }
 
-    console.log("Resend email sent:", data);
+    console.log("Lead saved and email sent:", data);
 
     return NextResponse.json({
       success: true,
       emailId: data?.id,
     });
   } catch (error) {
-    console.error("Lead email route error:", error);
+    console.error("Lead API error:", error);
 
     return NextResponse.json(
-      { error: "Unable to send notification email." },
+      { error: "Unable to process lead request." },
       { status: 500 }
     );
   }
