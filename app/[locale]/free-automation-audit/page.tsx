@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { AuditForm } from "@/components/forms/AuditForm";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 
-export const instant = false;
 
 export default async function FreeAutomationAuditPage({
   params,
